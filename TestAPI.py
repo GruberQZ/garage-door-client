@@ -11,5 +11,11 @@ for i in range(6212,6216,1):
     output = response.read().decode('utf-8')
     # Load output string into JSON
     data = json.loads(output)
-    # Pretty print data to ensure it came in correctly
-    pprint(data)
+    print("State ID: " + str(data["id"]))
+    print(data["name"] + " is " + data["status"] + ".")
+    print(data["name"] + " should be " + data["desiredState"] + ".")
+    if data["status"] == data["desiredState"]:
+        print("Doing nothing.")
+    else:
+        print("Activating the garage door relay.")
+    print("=================================")
