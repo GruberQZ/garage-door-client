@@ -1,4 +1,7 @@
 import RPi.GPIO as GPIO
+import json
+from pprint import pprint
+import urllib.request
 
 # Set numbering scheme to BCM
 GPIO.setmode(GPIO.BCM)
@@ -12,7 +15,14 @@ GPIO.setup(17, GPIO.OUT, initial=GPIO.HIGH)
 # Should be an input with the pull-up resistor enabled
 GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-# * Main function here *
+# Need to get the current desired configuration from the cloud app
+# Retrieve the JSON file
+i = 6212
+response = urllib.request.urlopen("http://devops-tutorial-1-jploewen-1945.mybluemix.net/garages/" + str(i))
+# Decode response with proper charset
+output = response.read().decode('utf-8')
+# Load output string into JSON
+data = json.loads(output)
 
 # Clean up GPIO on exit
 GPIO.cleanup()
