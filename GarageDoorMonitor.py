@@ -3,6 +3,8 @@ import json
 from pprint import pprint
 import urllib.request
 import random
+import time
+import sys
 
 # Set numbering scheme to BCM
 GPIO.setmode(GPIO.BCM)
@@ -26,9 +28,27 @@ output = response.read().decode('utf-8')
 data = json.loads(output)
 
 # Get the current status of the door
+reading = GPIO.input(27)
+# If status is GPIO.LOW, magnet is close so door is closed
+# Else, magnet is not close, door is open
+if reading == GPIO.LOW:
+    status = 'closed'
+else:
+    status = 'open'
 
+# Make sure desiredState is valid, exit if it isn't
+if data["desiredState"] != 'closed' and data["desiredState"] != 'open':
+    # Exit program for safety
+    GPIO.cleanup()
+    sys.exit()
 
 # Process the data that comes back
+# If status and desiredState are not the same, activate the relay to correct it
+if data["desiredState"] != status:
+    # Activate the relay
+    GPIO.output(17,GPIO.LOW)
+    time.sleep(0.4)
+    GPIO.output(17,GPIO.HIGH)
 
 # Clean up GPIO on exit
 GPIO.cleanup()
