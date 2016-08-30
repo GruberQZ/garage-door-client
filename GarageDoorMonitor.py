@@ -6,6 +6,8 @@ import random
 import time
 import sys
 
+# Program variables
+
 # Set numbering scheme to BCM
 GPIO.setmode(GPIO.BCM)
 
@@ -25,7 +27,7 @@ response = urllib.request.urlopen("http://devops-tutorial-1-jploewen-1945.myblue
 # Decode response with proper charset
 output = response.read().decode('utf-8')
 # Load output string into JSON
-data = json.loads(output)
+desired = json.loads(output)
 
 # Get the current status of the door
 reading = GPIO.input(27)
@@ -37,14 +39,14 @@ else:
     status = 'open'
 
 # Make sure desiredState is valid, exit if it isn't
-if data["desiredState"] != 'closed' and data["desiredState"] != 'open':
+if desired["desiredState"] != 'closed' and desired["desiredState"] != 'open':
     # Exit program for safety
     GPIO.cleanup()
     sys.exit()
 
 # Process the data that comes back
 # If status and desiredState are not the same, activate the relay to correct it
-if data["desiredState"] != status:
+if desired["desiredState"] != status:
     # Activate the relay
     GPIO.output(17,GPIO.LOW)
     time.sleep(0.4)
