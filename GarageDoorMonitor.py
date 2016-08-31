@@ -6,8 +6,7 @@ import random
 import time
 import sys
 
-# Program variables
-
+# Initialize GPIO for garage door communication
 # Set numbering scheme to BCM
 GPIO.setmode(GPIO.BCM)
 
@@ -19,24 +18,6 @@ GPIO.setup(17, GPIO.OUT, initial=GPIO.HIGH)
 # [the other magnet sensor wire is connected to ground on pin 9]
 # Should be an input with the pull-up resistor enabled
 GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-# Need to get the current desired configuration from the cloud app
-# Retrieve the JSON file
-#i = 6211 + random.randint(1,4)
-response = urllib.request.urlopen("http://devops-tutorial-1-jploewen-1945.mybluemix.net/garages/6213")
-# Decode response with proper charset
-output = response.read().decode('utf-8')
-# Load output string into JSON
-desired = json.loads(output)
-
-# Get the current status of the door
-reading = GPIO.input(27)
-# If status is GPIO.LOW, magnet is close so door is closed
-# Else, magnet is not close, door is open
-if reading == GPIO.LOW:
-    status = 'closed'
-else:
-    status = 'open'
 
 # Make sure desiredState is valid, exit if it isn't
 if desired["desiredState"] != 'closed' and desired["desiredState"] != 'open':
