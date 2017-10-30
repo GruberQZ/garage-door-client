@@ -44,7 +44,7 @@ try:
 	if GPIO.input(27):
 		print("Initial door state: open")
 	else:
-		print("Initial door state: open")
+		print("Initial door state: closed")
 	while True:
 		pass
 except:
