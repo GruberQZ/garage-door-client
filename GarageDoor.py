@@ -1,63 +1,56 @@
-import RPi.GPIO as GPIO
+
 import json
 from pprint import pprint
-import urllib.request
+import requests
 import random
 import time
 import sys
 
 class GarageDoor:
-    base_url = 'https://devops-tutorial-1-jploewen-1945.mybluemix.net/'
-    previousState = None
-    desiredState = None
-    currentState = None
+    base_url = 'https://garage-door.mybluemix.net/'
 
-    # Ignore the sapce id for now
-    space_id = None
-
-    def __init__(self, space_id=None):
-        self.space_id = space_id
+    def __init__(self, door_id=None):
+        self.door_id = door_id
         # self.userid = "extuser"
         # self.passwd = "DRiving4AWorking/sYstem2016"
         self.headers = {
-            'Content-type': 'application/json',
-            # 'X-TenantID': self.space_id,
+            'Content-type': 'application/json'
         }
 
     def print_key(self):
         print(self.space_id)
         print(self.base_url)
 
-    def getCloudConfig(self):
-        # Need to get the current desired configuration from the cloud app
-        # Retrieve the JSON file
-        # i = 6211 + random.randint(1,4)
-        response = urllib.request.urlopen("http://devops-tutorial-1-jploewen-1945.mybluemix.net/garages/6213")
-        # Decode response with proper charset
-        output = response.read().decode('utf-8')
-        # Load output string into JSON
-        jsondata = json.loads(output)
-        self.desiredState = jsondata["desiredState"]
+    def getDoorConfig(self):
+        url = self.base_url + "garages/" + self.door_id 
+        #print ("Get Door Config")
+        #print ("url=%s" % (url))
 
-    def getPreviousState(self):
-        # Reads the saved file to retrieve data about previous session
-        pass
+        r = requests.get(url, headers=self.headers, verify=True)
+    
+        print ("<%d>" % (r.status_code))
+        
+        if (r.status_code>=200 and r.status_code<300):
+            return r.json()
+            #Sample:
+            #{"id":6212,"name":"Main door home","lastUpdated":"2017-11-30T14:48:00","desiredState":"open","status":"open"}
+        return None
 
-    def getCurrentState(self):
-        # Reads the GPIO to determine the current status of the garage door
-        # Get the current status of the door
-        reading = GPIO.input(27)
-        # If status is GPIO.LOW, magnet is close so door is closed
-        # Else, magnet is not close, door is open
-        if reading == GPIO.LOW:
-            self.currentState = 'closed'
-        elif reading == GPIO.HIGH:
-            self.currentState = 'open'
-        else:
-            self.currentState = None
+    def doorStateChange(self, newState):
+        url = self.base_url + "garages/" + self.door_id 
+        data = {"id": self.door_id, "state": newState }
 
-    def activate(self):
-        # Activate relay (simulate garage door button press)
-        GPIO.output(17, GPIO.LOW)
-        time.sleep(0.4)
-        GPIO.output(17, GPIO.HIGH)
+        start_time = time.time()
+        r = requests.post(url, headers=self.headers, data=data, verify=True)
+    
+        print ("<%d>" % (r.status_code))
+        
+        if (r.status_code>=200 and r.status_code<300):
+            return r.json()
+        return None
+
+gd = GarageDoor("6212")
+config = gd.getDoorConfig()
+if config!=None:
+    print ("%s" % (config))
+    
